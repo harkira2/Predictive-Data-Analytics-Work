@@ -1,0 +1,35 @@
+/* Run these alter table commands separately, one by one */
+ALTER TABLE transactionsT
+ADD COLUMN Department_id INT;
+
+ALTER TABLE transactionsT
+ADD COLUMN Sub_Department_Name VARCHAR(255);
+
+/* Adding sub department name & department ID to transactions table */
+UPDATE transactionsT
+INNER JOIN subdeptsT ON transactionsT.SUB_DEPARTMENT = subdeptsT.SUBDEPARTMENT_ID
+SET transactionsT.Department_id = subdeptsT.DEPARTMENT_ID, transactionsT.Sub_Department_Name = subdeptsT.SUBDEPARTMENT_DESCRIPTION;
+
+/* Department wise total sales and cost */
+SELECT Department_id, SUM (SALES_VALUE) AS TotalSales, SUM (COST_AMOUNT) AS TotalCost
+INTO DeptSales
+FROM transactionsT
+GROUP BY Department_id
+ORDER BY SUM (SALES_VALUE) DESC;
+
+/* Department Names - Sale Summary */
+SELECT DeptSales.Department_id, deptsT.DEPARTMENT_DESCRIPTION, DeptSales.TotalSales, DeptSales.TotalCost
+FROM DeptSales
+INNER JOIN deptsT ON DeptSales.Department_id = deptsT.DEPARTMENT_ID;
+
+/* Tobacco & Pharmacy Customers - to check if there is a correlation */ 
+SELECT CUSTOMER_ID, ITEM_DESCRIPTION, SALES_VALUE, COST_AMOUNT, Department_id, Sub_Department_Name
+INTO Tobacco_Pharmacy
+FROM transactionsT
+WHERE Department_id IN (7, 17);
+
+/* To check if there is a correlation between Tobacco & Pharmacy customers & their demograhics */
+SELECT Tobacco_Pharmacy.*, customersT.CU_AGE_RANGE, customersT.CU_GENDER
+FROM Tobacco_Pharmacy
+INNER JOIN customersT ON Tobacco_Pharmacy.CUSTOMER_ID = customersT.CUSTOMER_ID
+ORDER BY Tobacco_Pharmacy.CUSTOMER_ID;

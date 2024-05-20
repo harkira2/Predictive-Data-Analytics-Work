@@ -1,0 +1,13 @@
+SELECT TRANSACTION_DATE AS TransactionDate, FORMAT (TRANSACTION_DATE, 'dddd') AS TransactionDay, SUM (QUANTITY_SOLD) AS TotalQuantitySold, SUM (SALES_VALUE) AS TotalSales, SUM (COST_AMOUNT) AS TotalCost
+INTO TransactionDates
+FROM transactionsT
+GROUP BY TRANSACTION_DATE
+ORDER BY SUM (SALES_VALUE) DESC;
+
+/* Below is the summary table for transaction value on each of the 7 days of the week */
+
+SELECT TransactionDay, SUM (TotalQuantitySold) AS QuantitySummary, SUM (TotalSales) AS SalesSummary, SUM (TotalCost) AS CostSummary
+INTO DaysSummary
+FROM TransactionDates
+GROUP BY TransactionDay
+ORDER BY SUM (TotalSales) DESC;
